@@ -37,7 +37,6 @@ border: 2px solid #fff;
 }
 .layout{display:flex;gap:30px;flex-wrap:wrap;justify-content: center;}
 
-/* プレビューエリア */
 .preview-container {
 display: flex;
 flex-direction: column;
@@ -49,11 +48,10 @@ gap: 15px;
 width:500px;height:500px;
 position:relative;
 overflow:hidden;
-background:#fff;
+background:#eee;
 border-radius:20px;
 box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 border: 4px solid #fff;
-/* スマホ等での不要な長押しメニューを防止 */
 -webkit-touch-callout: none;
 user-select: none;
 }
@@ -62,7 +60,6 @@ user-select: none;
 #avatar{z-index:2;left:100px;top:100px;width:300px;cursor:move;transform-origin: center center;}
 #frame{inset:0;width:100%;height:100%;object-fit:contain;z-index:3;pointer-events:none}
 
-/* コントロールエリア */
 .controls{flex:1;min-width:320px;max-width: 500px;}
 .section{
 background: rgba(255, 255, 255, 0.9);
@@ -80,16 +77,9 @@ display: flex;
 align-items: center;
 gap: 6px;
 }
-.section h3::before {
-content: "🐾";
-font-size: 0.9rem;
-}
+.section h3::before { content: "🐾"; font-size: 0.9rem; }
 
-.thumb-list{
-display:flex;
-gap:12px;
-flex-wrap:wrap;
-}
+.thumb-list{ display:flex; gap:12px; flex-wrap:wrap; }
 
 .thumb{
 width:80px;
@@ -98,12 +88,20 @@ border-radius:12px;
 overflow:hidden;
 border:3px solid transparent;
 cursor:pointer;
-background:#fff;
+background:#ffeef5;
 transition: all 0.2s ease;
 box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 11px;
+color: #ff6fb5;
+font-weight: bold;
+text-align: center;
+padding: 4px;
 }
 .thumb:hover { transform: scale(1.05); }
-.thumb.active{ border-color:#ff6fb5; transform: scale(1.05); }
+.thumb.active{ border-color:#ff6fb5; transform: scale(1.05); background: #ffcfe7; }
 .thumb img{ width:100%; height:100%; object-fit:cover; }
 
 select, input[type=file] {
@@ -117,9 +115,7 @@ font-size: 1rem;
 outline: none;
 background: #fff;
 }
-select:focus { border-color: #ff6fb5; }
 
-/* ボタンの可愛い装飾 */
 button{
 width: 100%;
 padding: 16px;
@@ -133,239 +129,5 @@ cursor: pointer;
 background: linear-gradient(135deg, #ff8fc9, #ff6fb5);
 box-shadow: 0 6px 15px rgba(255, 111, 181, 0.4);
 transition: all 0.2s ease;
-display: flex;
-justify-content: center;
-align-items: center;
-gap: 8px;
 }
-button:hover{
-transform: translateY(-2px);
-box-shadow: 0 8px 20px rgba(255, 111, 181, 0.6);
-opacity: 0.95;
-}
-button:active { transform: translateY(1px); }
-
-.note{font-size:12px;color:#888;margin-top: 5px; line-height: 1.4;}
-
-/* 保存用の隠しCanvas */
-#saveCanvas { display: none; }
-
-@media (max-width: 600px) {
-.preview { width: 100%; height: calc(100vw - 80px); max-width: 500px; max-height: 500px; }
-h1 { font-size: 1.6rem; }
-}
-</style>
-</head>
-<body>
-
-<div class="wrapper">
-<div class="panel">
-
-<h1>おはVメーカー for WONDer PO</h1>
-
-<div class="layout">
-
-<div class="preview-container">
-<div class="preview" id="preview">
-<img id="bg" src="bg1.png">
-<img id="avatar" alt="立ち絵をアップロードしてください">
-<img id="frame" src="frame1.png">
-</div>
-<button id="downloadBtn">✨ この画像を出力して保存 ✨</button>
-</div>
-
-<div class="controls">
-
-<div class="section">
-<h3>用途を選ぶ</h3>
-<select id="category">
-<option value="ohayo">おはようVTuber</option>
-<option value="oyasumi">おやすみVTuber</option>
-<option value="other">その他</option>
-</select>
-</div>
-
-<div class="section">
-<h3>立ち絵アップロード</h3>
-<input type="file" accept="image/png" id="upload">
-<div class="note">💡 透過PNGを推奨します。確認後はアバターをドラッグで移動、マウスホイール（スマホはピンチ／ホイール操作）で拡大縮小できます。</div>
-</div>
-
-<div class="section">
-<h3>背景を選択</h3>
-<div class="thumb-list" id="bgList"></div>
-</div>
-
-<div class="section">
-<h3>フレームを選択</h3>
-<div class="thumb-list" id="frameList"></div>
-</div>
-
-</div>
-
-</div>
-</div>
-</div>
-
-<canvas id="saveCanvas" width="1000" height="1000"></canvas>
-
-<script>
-// サンプルデータ（実際のファイル名に合わせて変更してください）
-const backgrounds=["bg1.png","bg2.png","bg3.png"];
-const frames=["frame1.png","frame2.png","frame3.png"];
-
-const bg=document.getElementById("bg");
-const frame=document.getElementById("frame");
-const avatar=document.getElementById("avatar");
-
-const bgList=document.getElementById("bgList");
-const frameList=document.getElementById("frameList");
-const downloadBtn=document.getElementById("downloadBtn");
-const canvas=document.getElementById("saveCanvas");
-const ctx=canvas.getContext("2d");
-
-// 背景リスト生成
-backgrounds.forEach((src,index)=>{
-const div=document.createElement("div");
-div.className="thumb"+(index===0?" active":"");
-div.innerHTML=`<img src="${src}">`;
-div.onclick=()=>{
-bg.src=src;
-document.querySelectorAll("#bgList .thumb").forEach(x=>x.classList.remove("active"));
-div.classList.add("active");
-};
-bgList.appendChild(div);
-});
-
-// フレームリスト生成
-frames.forEach((src,index)=>{
-const div=document.createElement("div");
-div.className="thumb"+(index===0?" active":"");
-div.innerHTML=`<img src="${src}">`;
-div.onclick=()=>{
-frame.src=src;
-document.querySelectorAll("#frameList .thumb").forEach(x=>x.classList.remove("active"));
-div.classList.add("active");
-};
-frameList.appendChild(div);
-});
-
-// 立ち絵アップロード
-document.getElementById("upload").addEventListener("change",(e)=>{
-const file=e.target.files[0];
-if(!file)return;
-avatar.src=URL.createObjectURL(file);
-// 初期位置リセット
-x = 100; y = 100; scale = 1;
-avatar.style.left=x+"px";
-avatar.style.top=y+"px";
-avatar.style.transform=`scale(${scale})`;
-});
-
-// アバター操作用の変数
-let scale=1;
-let dragging=false;
-let startX=0,startY=0;
-let x=100,y=100;
-
-// マウス＆タッチ共通の開始処理
-const startDrag = (clientX, clientY) => {
-if(!avatar.src) return;
-dragging=true;
-startX=clientX-x;
-startY=clientY-y;
-};
-
-// マウス＆タッチ共通の移動処理
-const moveDrag = (clientX, clientY) => {
-if(!dragging)return;
-x=clientX-startX;
-y=clientY-startY;
-avatar.style.left=x+"px";
-avatar.style.top=y+"px";
-};
-
-// PC用のイベント
-avatar.addEventListener("mousedown",(e)=>{ startDrag(e.clientX, e.clientY); e.preventDefault(); });
-document.addEventListener("mousemove",(e)=>{ moveDrag(e.clientX, e.clientY); });
-document.addEventListener("mouseup",()=>{ dragging=false; });
-
-// スマホ・タブレット用のタッチイベント
-avatar.addEventListener("touchstart",(e)=>{
-if(e.touches.length === 1) {
-startDrag(e.touches[0].clientX, e.touches[0].clientY);
-}
-});
-document.addEventListener("touchmove",(e)=>{
-if(dragging && e.touches.length === 1) {
-moveDrag(e.touches[0].clientX, e.touches[0].clientY);
-}
-},{pasive: false});
-document.addEventListener("touchend",()=>{ dragging=false; });
-
-// 拡大縮小（ホイール操作）
-document.getElementById("preview").addEventListener("wheel",(e)=>{
-if(!avatar.src) return;
-e.preventDefault();
-scale += e.deltaY>0 ? -0.05 : 0.05;
-if(scale<0.1)scale=0.1;
-if(scale<3) avatar.style.transform=`scale(${scale})`;
-},{passive:false});
-
-
-// ――― ここから重要：画像合成＆保存処理 ―――
-downloadBtn.addEventListener("click", () => {
-if(!avatar.src) {
-alert("まずは立ち絵をアップロードしてください！");
-return;
-}
-
-// 高画質（1000x1000pxの正方形）で出力するために倍率(2倍)を計算
-const outW = canvas.width;
-const outH = canvas.height;
-const baseW = 500; // プレビューの基準サイズ
-
-ctx.clearRect(0, 0, outW, outH);
-
-// 1. 背景を描画
-ctx.drawImage(bg, 0, 0, outW, outH);
-
-// 2. アバターを描画 (表示位置・拡大率を1000px基準に変換して計算)
-if(avatar.src && avatar.complete) {
-ctx.save();
-
-// プレビュー上の現在の表示サイズと位置を計算
-const currentW = avatar.offsetWidth;
-const currentH = avatar.offsetHeight;
-
-// Canvasサイズ(1000px)に合わせたスケール倍率
-const ratio = outW / baseW; 
-
-// アバターの中心座標を計算
-const centerX = (x + currentW / 2) * ratio;
-const centerY = (y + currentH / 2) * ratio;
-
-// 座標の原点をアバターの中心に移動して回転や拡大を適用
-ctx.translate(centerX, centerY);
-ctx.scale(scale, scale);
-
-// 画像を描画（中心がずれないようにマイナスオフセット）
-ctx.drawImage(avatar, -currentW*ratio/2, -currentH*ratio/2, currentW*ratio, currentH*ratio);
-
-ctx.restore();
-}
-
-// 3. フレームを描画
-ctx.drawImage(frame, 0, 0, outW, outH);
-
-// 4. ダウンロード実行
-const link = document.createElement("a");
-const categoryText = document.getElementById("category").value;
-link.download = `${categoryText}_${Date.now()}.png`;
-link.href = canvas.toDataURL("image/png");
-link.click();
-});
-</script>
-
-</body>
-</html>
+button:hover{ transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255
