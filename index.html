@@ -4,203 +4,83 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>おはVメーカー for WONDer PO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500&family=Mochiy+Pop+One&display=swap" rel="stylesheet">
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{
-font-family:sans-serif;
-background:linear-gradient(135deg,#ffd9f5,#dff7ff);
-padding:20px;
+font-family: 'Kiwi Maru', sans-serif;
+background: linear-gradient(135deg, #ffeef8, #e6f9ff);
+padding: 20px;
+color: #4a4a4a;
 }
-.wrapper{max-width:1200px;margin:auto}
-h1{text-align:center;margin-bottom:20px;color:#ff6fb5}
+.wrapper{max-width:1100px;margin:auto}
+
+h1 {
+text-align: center;
+margin-bottom: 25px;
+color: #ff6fb5;
+font-family: 'Mochiy Pop One', sans-serif;
+text-shadow: 2px 2px 0px #fff, 4px 4px 0px rgba(255, 111, 181, 0.2);
+font-size: 2.2rem;
+}
+
 .panel{
-background:rgba(255,255,255,.8);
-padding:20px;
-border-radius:20px;
-box-shadow:0 8px 20px rgba(0,0,0,.1);
+background: rgba(255, 255, 255, 0.85);
+padding: 30px;
+border-radius: 24px;
+box-shadow: 0 12px 28px rgba(255, 111, 181, 0.15);
+backdrop-filter: blur(10px);
+border: 2px solid #fff;
 }
-.layout{display:flex;gap:20px;flex-wrap:wrap}
+.layout{display:flex;gap:30px;flex-wrap:wrap;justify-content: center;}
+
+/* プレビューエリア */
+.preview-container {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 15px;
+}
+
 .preview{
 width:500px;height:500px;
 position:relative;
 overflow:hidden;
 background:#fff;
 border-radius:20px;
-border:2px solid #eee;
+box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+border: 4px solid #fff;
+/* スマホ等での不要な長押しメニューを防止 */
+-webkit-touch-callout: none;
+user-select: none;
 }
-.preview img{position:absolute;user-select:none}
-#bg{inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
-#avatar{z-index:2;left:100px;top:100px;width:300px;cursor:move}
+.preview img{position:absolute;user-select:none;-webkit-user-drag: none;}
+#bg{inset:0;width:100%;height:100%;object-fit:cover;z-index:1;pointer-events:none;}
+#avatar{z-index:2;left:100px;top:100px;width:300px;cursor:move;transform-origin: center center;}
 #frame{inset:0;width:100%;height:100%;object-fit:contain;z-index:3;pointer-events:none}
 
-.controls{flex:1;min-width:300px}
-.section{margin-bottom:20px}
-.section h3{margin-bottom:10px}
-
-.thumb-list{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
+/* コントロールエリア */
+.controls{flex:1;min-width:320px;max-width: 500px;}
+.section{
+background: rgba(255, 255, 255, 0.9);
+padding: 18px;
+border-radius: 16px;
+margin-bottom: 20px;
+border: 1px solid #ffe3f1;
 }
-
-.thumb{
-width:80px;
-height:80px;
-border-radius:12px;
-overflow:hidden;
-border:3px solid transparent;
-cursor:pointer;
-background:#fff;
+.section h3{
+margin-bottom: 12px;
+color: #ff529c;
+font-size: 1.1rem;
+font-family: 'Mochiy Pop One', sans-serif;
+display: flex;
+align-items: center;
+gap: 6px;
 }
-
-.thumb.active{
-border-color:#ff6fb5;
+.section h3::before {
+content: "🐾";
+font-size: 0.9rem;
 }
-
-.thumb img{
-width:100%;
-height:100%;
-object-fit:cover;
-}
-
-select,input[type=file],button{
-width:100%;
-padding:12px;
-border:none;
-border-radius:12px;
-margin-bottom:10px;
-}
-
-button{
-background:#ff8fc9;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
-button:hover{opacity:.9}
-.note{font-size:12px;color:#666}
-</style>
-</head>
-<body>
-
-<div class="wrapper">
-<div class="panel">
-
-<h1>おはVメーカー for WONDer PO</h1>
-
-<div class="layout">
-
-<div class="preview" id="preview">
-<img id="bg" src="bg1.png">
-<img id="avatar">
-<img id="frame" src="frame1.png">
-</div>
-
-<div class="controls">
-
-<div class="section">
-<h3>用途</h3>
-<select id="category">
-<option>おはようVTuber</option>
-<option>おやすみVTuber</option>
-<option>その他</option>
-</select>
-</div>
-
-<div class="section">
-<h3>立ち絵アップロード</h3>
-<input type="file" accept="image/png" id="upload">
-<div class="note">ドラッグ移動・マウスホイールで拡大縮小</div>
-</div>
-
-<div class="section">
-<h3>背景</h3>
-<div class="thumb-list" id="bgList"></div>
-</div>
-
-<div class="section">
-<h3>フレーム</h3>
-<div class="thumb-list" id="frameList"></div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-<script>
-const backgrounds=["bg1.png","bg2.png","bg3.png"];
-const frames=["frame1.png","frame2.png","frame3.png"];
-
-const bg=document.getElementById("bg");
-const frame=document.getElementById("frame");
-const avatar=document.getElementById("avatar");
-
-const bgList=document.getElementById("bgList");
-const frameList=document.getElementById("frameList");
-
-backgrounds.forEach((src,index)=>{
-const div=document.createElement("div");
-div.className="thumb"+(index===0?" active":"");
-div.innerHTML=`<img src="${src}">`;
-div.onclick=()=>{
-bg.src=src;
-document.querySelectorAll("#bgList .thumb").forEach(x=>x.classList.remove("active"));
-div.classList.add("active");
-};
-bgList.appendChild(div);
-});
-
-frames.forEach((src,index)=>{
-const div=document.createElement("div");
-div.className="thumb"+(index===0?" active":"");
-div.innerHTML=`<img src="${src}">`;
-div.onclick=()=>{
-frame.src=src;
-document.querySelectorAll("#frameList .thumb").forEach(x=>x.classList.remove("active"));
-div.classList.add("active");
-};
-frameList.appendChild(div);
-});
-
-document.getElementById("upload").addEventListener("change",(e)=>{
-const file=e.target.files[0];
-if(!file)return;
-avatar.src=URL.createObjectURL(file);
-});
-
-let scale=1;
-let dragging=false;
-let startX=0,startY=0;
-let x=100,y=100;
-
-avatar.addEventListener("mousedown",(e)=>{
-dragging=true;
-startX=e.clientX-x;
-startY=e.clientY-y;
-});
-
-document.addEventListener("mousemove",(e)=>{
-if(!dragging)return;
-x=e.clientX-startX;
-y=e.clientY-startY;
-avatar.style.left=x+"px";
-avatar.style.top=y+"px";
-});
-
-document.addEventListener("mouseup",()=>{
-dragging=false;
-});
-
-avatar.addEventListener("wheel",(e)=>{
-e.preventDefault();
-scale += e.deltaY>0 ? -0.05 : 0.05;
-if(scale<0.2)scale=0.2;
-avatar.style.transform=`scale(${scale})`;
-});
-</script>
-
-</body>
-</html>
