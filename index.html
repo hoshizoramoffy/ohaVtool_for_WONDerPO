@@ -48,7 +48,7 @@ gap: 15px;
 width:500px;height:500px;
 position:relative;
 overflow:hidden;
-background:#eee;
+background:#ffeef5;
 border-radius:20px;
 box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 border: 4px solid #fff;
@@ -56,8 +56,8 @@ border: 4px solid #fff;
 user-select: none;
 }
 .preview img{position:absolute;user-select:none;-webkit-user-drag: none;}
-#bg{inset:0;width:100%;height:100%;object-fit:cover;z-index:1;pointer-events:none;}
-#avatar{z-index:2;left:100px;top:100px;width:300px;cursor:move;transform-origin: center center;}
+#bg{inset:0;width:100%;height:100%;object-fit:cover;z-index:1;}
+#avatar{z-index:2;left:100px;top:100px;width:300px;cursor:move;transform-origin: center center;display:none;}
 #frame{inset:0;width:100%;height:100%;object-fit:contain;z-index:3;pointer-events:none}
 
 .controls{flex:1;min-width:320px;max-width: 500px;}
@@ -79,7 +79,7 @@ gap: 6px;
 }
 .section h3::before { content: "🐾"; font-size: 0.9rem; }
 
-.thumb-list{ display:flex; gap:12px; flex-wrap:wrap; }
+.thumb-list{ display:flex; gap:12px; flex-wrap:wrap; min-height: 40px; }
 
 .thumb{
 width:80px;
@@ -88,46 +88,10 @@ border-radius:12px;
 overflow:hidden;
 border:3px solid transparent;
 cursor:pointer;
-background:#ffeef5;
+background:#fff;
 transition: all 0.2s ease;
 box-shadow: 0 4px 8px rgba(0,0,0,0.05);
 display: flex;
 align-items: center;
 justify-content: center;
-font-size: 11px;
-color: #ff6fb5;
-font-weight: bold;
-text-align: center;
-padding: 4px;
-}
-.thumb:hover { transform: scale(1.05); }
-.thumb.active{ border-color:#ff6fb5; transform: scale(1.05); background: #ffcfe7; }
-.thumb img{ width:100%; height:100%; object-fit:cover; }
-
-select, input[type=file] {
-width:100%;
-padding: 12px;
-border: 2px solid #ffe3f1;
-border-radius: 12px;
-margin-bottom: 10px;
-font-family: 'Kiwi Maru', sans-serif;
-font-size: 1rem;
-outline: none;
-background: #fff;
-}
-
-button{
-width: 100%;
-padding: 16px;
-border: none;
-border-radius: 16px;
-color: white;
-font-weight: bold;
-font-size: 1.2rem;
-font-family: 'Mochiy Pop One', sans-serif;
-cursor: pointer;
-background: linear-gradient(135deg, #ff8fc9, #ff6fb5);
-box-shadow: 0 6px 15px rgba(255, 111, 181, 0.4);
-transition: all 0.2s ease;
-}
-button:hover{ transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255
+font-
