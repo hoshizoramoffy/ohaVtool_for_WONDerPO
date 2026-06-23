@@ -4,14 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>おはVメーカー for WONDer PO</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500&family=Mochiy+Pop+One&display=swap" rel="stylesheet">
 
 <style>
+/* 外部フォントの読み込みをすべて廃止し、標準の丸ゴシックや安全なフォントを指定 */
 *{box-sizing:border-box;margin:0;padding:0}
 body{
-font-family: 'Kiwi Maru', sans-serif;
+font-family: "Hiragino Maru Gothic ProN", "ヒラギノ丸ゴ ProN W4", "Noto Sans JP", "Meiryo", sans-serif;
 background: linear-gradient(135deg, #ffeef8, #e6f9ff);
 padding: 20px;
 color: #4a4a4a;
@@ -22,7 +20,7 @@ h1 {
 text-align: center;
 margin-bottom: 25px;
 color: #ff6fb5;
-font-family: 'Mochiy Pop One', sans-serif;
+font-weight: bold;
 text-shadow: 2px 2px 0px #fff, 4px 4px 0px rgba(255, 111, 181, 0.2);
 font-size: 2.2rem;
 }
@@ -32,7 +30,6 @@ background: rgba(255, 255, 255, 0.85);
 padding: 30px;
 border-radius: 24px;
 box-shadow: 0 12px 28px rgba(255, 111, 181, 0.15);
-backdrop-filter: blur(10px);
 border: 2px solid #fff;
 }
 .layout{display:flex;gap:30px;flex-wrap:wrap;justify-content: center;}
@@ -72,12 +69,11 @@ border: 1px solid #ffe3f1;
 margin-bottom: 12px;
 color: #ff529c;
 font-size: 1.1rem;
-font-family: 'Mochiy Pop One', sans-serif;
+font-weight: bold;
 display: flex;
 align-items: center;
 gap: 6px;
 }
-.section h3::before { content: "🐾"; font-size: 0.9rem; }
 
 .thumb-list{ display:flex; gap:12px; flex-wrap:wrap; min-height: 40px; }
 
@@ -94,4 +90,246 @@ box-shadow: 0 4px 8px rgba(0,0,0,0.05);
 display: flex;
 align-items: center;
 justify-content: center;
-font-
+font-size: 11px;
+color: #ff6fb5;
+font-weight: bold;
+text-align: center;
+padding: 4px;
+}
+.thumb:hover { transform: scale(1.05); }
+.thumb.active{ border-color:#ff6fb5; transform: scale(1.05); background: #ffcfe7; }
+.thumb img{ width:100%; height:100%; object-fit:cover; }
+
+select, input[type=file] {
+width:100%;
+padding: 12px;
+border: 2px solid #ffe3f1;
+border-radius: 12px;
+margin-bottom: 10px;
+font-size: 1rem;
+outline: none;
+background: #fff;
+}
+
+button{
+width: 100%;
+padding: 16px;
+border: none;
+border-radius: 16px;
+color: white;
+font-weight: bold;
+font-size: 1.2rem;
+cursor: pointer;
+background: linear-gradient(135deg, #ff8fc9, #ff6fb5);
+box-shadow: 0 6px 15px rgba(255, 111, 181, 0.4);
+transition: all 0.2s ease;
+}
+button:hover{ transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 111, 181, 0.6); }
+
+.note{font-size:12px;color:#888;margin-top: 5px; line-height: 1.4;}
+#saveCanvas { display: none; }
+
+@media (max-width: 600px) {
+.preview { width: 100%; height: calc(100vw - 80px); max-width: 500px; max-height: 500px; }
+h1 { font-size: 1.6rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+<div class="panel">
+
+<h1>おはVメーカー for WONDer PO</h1>
+
+<div class="layout">
+
+<div class="preview-container">
+<div class="preview" id="preview">
+<img id="bg" alt="背景">
+<img id="avatar" alt="アバター">
+<img id="frame" alt="フレーム">
+</div>
+<button id="downloadBtn">✨ この画像を出力して保存 ✨</button>
+</div>
+
+<div class="controls">
+
+<div class="section">
+<h3>用途を選ぶ</h3>
+<select id="category">
+<option value="ohayo">おはようVTuber</option>
+<option value="oyasumi">おやすみVTuber</option>
+<option value="other">その他</option>
+</select>
+</div>
+
+<div class="section">
+<h3>立ち絵アップロード</h3>
+<input type="file" accept="image/png" id="upload">
+<div class="note">💡 透過PNG推奨。アバターをドラッグで移動、マウスホイールで拡大縮小できます。</div>
+</div>
+
+<div class="section">
+<h3>背景を選択</h3>
+<div class="thumb-list" id="bgList"></div>
+</div>
+
+<div class="section">
+<h3>フレームを選択</h3>
+<div class="thumb-list" id="frameList"></div>
+</div>
+
+</div>
+
+</div>
+</div>
+</div>
+
+<canvas id="saveCanvas" width="1000" height="1000"></canvas>
+
+<script>
+// 画像ファイル名（もし手元にあれば書き換えてください）
+const backgrounds = ["bg1.png", "bg2.png", "bg3.png"];
+const frames = ["frame1.png", "frame2.png", "frame3.png"];
+
+const bg = document.getElementById("bg");
+const frame = document.getElementById("frame");
+const avatar = document.getElementById("avatar");
+const bgList = document.getElementById("bgList");
+const frameList = document.getElementById("frameList");
+const downloadBtn = document.getElementById("downloadBtn");
+const canvas = document.getElementById("saveCanvas");
+const ctx = canvas.getContext("2d");
+
+// 安全な画像セット関数
+const setImgSrc = (element, src) => {
+    if (!src) { element.style.opacity = '0'; return; }
+    element.src = src;
+    element.style.opacity = '1';
+    element.onerror = () => {
+        element.removeAttribute('src');
+        element.style.opacity = '0';
+    };
+};
+
+// 初期表示のキック
+if (backgrounds.length > 0) setImgSrc(bg, backgrounds[0]);
+if (frames.length > 0) setImgSrc(frame, frames[0]);
+
+// 背景リストの生成
+backgrounds.forEach((src, index) => {
+    const div = document.createElement("div");
+    div.className = "thumb" + (index === 0 ? " active" : "");
+    
+    const img = document.createElement("img");
+    img.src = src;
+    img.onerror = () => {
+        img.remove();
+        div.innerText = "背景 " + (index + 1);
+    };
+    div.appendChild(img);
+
+    div.onclick = () => {
+        setImgSrc(bg, src);
+        document.querySelectorAll("#bgList .thumb").forEach(x => x.classList.remove("active"));
+        div.classList.add("active");
+    };
+    bgList.appendChild(div);
+});
+
+// フレームリストの生成
+frames.forEach((src, index) => {
+    const div = document.createElement("div");
+    div.className = "thumb" + (index === 0 ? " active" : "");
+    
+    const img = document.createElement("img");
+    img.src = src;
+    img.onerror = () => {
+        img.remove();
+        div.innerText = "枠 " + (index + 1);
+    };
+    div.appendChild(img);
+
+    div.onclick = () => {
+        setImgSrc(frame, src);
+        document.querySelectorAll("#frameList .thumb").forEach(x => x.classList.remove("active"));
+        div.classList.add("active");
+    };
+    frameList.appendChild(div);
+});
+
+// 立ち絵アップロード
+document.getElementById("upload").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    avatar.src = URL.createObjectURL(file);
+    avatar.style.display = 'block';
+    avatar.style.opacity = '1';
+    x = 100; y = 100; scale = 1;
+    avatar.style.left = x + "px";
+    avatar.style.top = y + "px";
+    avatar.style.transform = `scale(${scale})`;
+});
+
+// 操作ロジック（完全に安全な標準イベントのみ）
+let scale = 1; let dragging = false; let startX = 0; let startY = 0; let x = 100; let y = 100;
+const startDrag = (clientX, clientY) => { if (!avatar.src) return; dragging = true; startX = clientX - x; startY = clientY - y; };
+const moveDrag = (clientX, clientY) => { if (!dragging) return; x = clientX - startX; y = clientY - startY; avatar.style.left = x + "px"; avatar.style.top = y + "px"; };
+
+avatar.addEventListener("mousedown", (e) => { startDrag(e.clientX, e.clientY); e.preventDefault(); });
+document.addEventListener("mousemove", (e) => { moveDrag(e.clientX, e.clientY); });
+document.addEventListener("mouseup", () => { dragging = false; });
+
+avatar.addEventListener("touchstart", (e) => { if (e.touches.length === 1) startDrag(e.touches[0].clientX, e.touches[0].clientY); });
+document.addEventListener("touchmove", (e) => { if (dragging && e.touches.length === 1) moveDrag(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+document.addEventListener("touchend", () => { dragging = false; });
+
+document.getElementById("preview").addEventListener("wheel", (e) => {
+    if (!avatar.src) return;
+    e.preventDefault();
+    scale += e.deltaY > 0 ? -0.05 : 0.05;
+    if (scale < 0.1) scale = 0.1;
+    avatar.style.transform = `scale(${scale})`;
+}, { passive: false });
+
+// 保存処理
+downloadBtn.addEventListener("click", () => {
+    if (!avatar.src || avatar.style.opacity === '0') { alert("まずは立ち絵をアップロードしてください！"); return; }
+    const outW = canvas.width; const outH = canvas.height; const baseW = 500;
+    ctx.clearRect(0, 0, outW, outH);
+
+    if (bg.src && bg.style.opacity !== '0' && bg.complete) {
+        ctx.drawImage(bg, 0, 0, outW, outH);
+    } else {
+        ctx.fillStyle = "#ffeef5";
+        ctx.fillRect(0, 0, outW, outH);
+    }
+
+    if (avatar.src && avatar.style.opacity !== '0' && avatar.complete) {
+        ctx.save();
+        const currentW = avatar.offsetWidth || 300; 
+        const currentH = avatar.offsetHeight || 300;
+        const ratio = outW / baseW;
+        const centerX = (x + currentW / 2) * ratio;
+        const centerY = (y + currentH / 2) * ratio;
+        ctx.translate(centerX, centerY);
+        ctx.scale(scale, scale);
+        ctx.drawImage(avatar, -currentW * ratio / 2, -currentH * ratio / 2, currentW * ratio, currentH * ratio);
+        ctx.restore();
+    }
+
+    if (frame.src && frame.style.opacity !== '0' && frame.complete) {
+        ctx.drawImage(frame, 0, 0, outW, outH);
+    }
+
+    const link = document.createElement("a");
+    const categoryText = document.getElementById("category").value;
+    link.download = `${categoryText}_${Date.now()}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+});
+</script>
+
+</body>
+</html>
